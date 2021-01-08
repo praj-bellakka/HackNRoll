@@ -25,8 +25,10 @@ xmlHttp.setRequestHeader('AccessKey', '8b274253-49d1-42e5-84a9-0e7691de84c6');
 xmlHttp.setRequestHeader('Token', 'eYJ72--K-ss7+-1M4spAjUDnAa6eNsuX1s474wHtS9v18B0q4645mKe-988edc8e52RDh3uVe6sSWXh-8TpB7Z95ZK7d9PeZDbdz');
 xmlHttp.send();
 //var uraData = JSON.parse((xmlHttp.responseText));
+
 /* Geolocate function */
 /* Set up the initial map center and zoom level */
+
 let map = L.map('map', {
 	center: [1.40, 100], // EDIT latitude, longitude to re-center map
 	zoom: 12,  // Zoom level goesfrom 1 to 18 -- decrease to zoom out, increase to zoom in

@@ -11,10 +11,14 @@ function searchAddressByName() {
                 console.log(result);
 
                 var resultsarr = result.results;
-
-                resultsarr.forEach(location => {
-                    document.getElementById("manualsearchresults").innerHTML += location.SEARCHVAL + " X: " + location.X + " Y: " + location.Y + "<br>";
-                })
+                for(i = 0; i <resultsarr.length; i += 1) {
+                    if(resultsarr[i].SEARCHVAL == name.toUpperCase()) {
+                        document.getElementById("manualsearchresults").innerHTML = resultsarr[i].SEARCHVAL + " X: " + resultsarr[i].X + " Y: " + resultsarr[i].Y + "<br>";
+                        break;
+                    }else {
+                        document.getElementById("manualsearchresults").innerHTML += resultsarr[i].SEARCHVAL + " X: " + resultsarr[i].X + " Y: " + resultsarr[i].Y + "<br>";
+                    }
+                }
             }
         });
     }

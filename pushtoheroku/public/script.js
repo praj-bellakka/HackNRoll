@@ -7,23 +7,23 @@ let map = L.map('map', {
 	tap: false
 });
 
-function onAccuratePositionError(event) {
+function onAccuratePositionError (event) {
 	//addStatus(event.message, 'error');]
 	console.log(event);
 }
 
-function onAccuratePositionProgress(event) {
+function onAccuratePositionProgress (event) {
 	let message = `Progressing … (Accuracy: ${event.accuracy})`;
 	//addStatus(message, 'progressing');
 	console.log(message);
 }
 
-function onAccuratePositionFound(event) {
+function onAccuratePositionFound (event) {
 	let message = `Most accurate position found (Accuracy: ${event.accuracy})`;
 	//addStatus(message, 'done');
 	map.setView(event.latlng, 12);
 	L.marker(event.latlng).addTo(map)
-		.bindPopup("Some pointers can be added here"); // EDIT pop-up text message;
+	.bindPopup("Some pointers can be added here"); // EDIT pop-up text message;
 	console.log(message);
 
 	// Initialization
@@ -65,19 +65,16 @@ function onAccuratePositionFound(event) {
 	xmlHttp.send();
 }
 
-function geolocater() {
-	map.on('accuratepositionprogress', onAccuratePositionProgress);
-	map.on('accuratepositionfound', onAccuratePositionFound);
-	map.on('accuratepositionerror', onAccuratePositionError);
+map.on('accuratepositionprogress', onAccuratePositionProgress);
+map.on('accuratepositionfound', onAccuratePositionFound);
+map.on('accuratepositionerror', onAccuratePositionError);
 
-	map.findAccuratePosition({
-		maxWait: 10000,
-		desiredAccuracy: 20
-	});
-}
+map.findAccuratePosition({
+	maxWait: 10000,
+	desiredAccuracy: 20
+});
 
 /* Set up Map functions */
-
 
 //determines how strict the filter is in SVY terms
 let filterStrength = 2000;
@@ -90,12 +87,12 @@ function parseData(obj, N, E) {
 
 	obj.sort((a, b) => {
 		//convert the cost per hour in dollars to a flat string using regex operations
-		if (a.weekdayRate.replace(/(^\$|,)/g, '') === b.weekdayRate.replace(/(^\$|,)/g, '')) {
+		if (a.weekdayRate.replace(/(^\$|,)/g,'') === b.weekdayRate.replace(/(^\$|,)/g,'')) {
 			//If two elements have same weekday costs, then the parking lot with more lots will win
 			return b.parkCapacity - a.parkCapacity;
 		} else {
 			//If two elements have different rates, then the cheaper lot will win
-			return a.weekdayRate.replace(/(^\$|,)/g, '') - b.weekdayRate.replace(/(^\$|,)/g, '');
+			return a.weekdayRate.replace(/(^\$|,)/g,'') - b.weekdayRate.replace(/(^\$|,)/g,'');
 		}
 	})
 	//Get the current coordinates in SVY format
@@ -125,25 +122,66 @@ function parseData(obj, N, E) {
 
 		//console.log(coordinateObj[1], e, idx);
 		return ((coordinateObj[0] <= nSVYcoord + filterStrength &&
-			coordinateObj[0] >= nSVYcoord - filterStrength) && (coordinateObj[1] <= eSVYcoord + filterStrength &&
-				coordinateObj[1] >= eSVYcoord - filterStrength))
+		coordinateObj[0] >= nSVYcoord - filterStrength) && (coordinateObj[1] <= eSVYcoord + filterStrength &&
+		coordinateObj[1] >= eSVYcoord - filterStrength));
+	}).forEach((card, idx) => {
+		console.log(card, idx);
+		createCard(card, idx);
 	})
 	console.log(filteredParkingLots);
 	//filterNearestCarParks(nSVYcoord, eSVYcoord, obj);
 }
 
-
+/* This function determines the current day 
+The function returns the following based on the current day
+0 - Sunday .... 6 - Saturday 		
+*/
+function generateDayofWeek() {
+	let date = new Date();
+	let dayOfWeek = date.getDay();
+	return dayOfWeek;
+	//console.log(dayOfWeek);
+}
+generateDayofWeek();
 /* This function takes in the latitude and longtitude of the current location, and filters 
 	howMany nearst carparks using the URA filter*/
 
-function filterNearestCarParks(nSVYcoord, eSVYcoord, obj) {
 
-}
+function updateGUI (nSVYcoord, eSVYcoord, obj) {
+	
+}	
 
+
+let resultCard = document.getElementById('result');
+
+function createCard(data, index) {
+	const card = document.createElement('div');
+	card.classList.add('card');
+	let parkingRate;
+	let dayOfWeek = generateDayofWeek();
+	console.log(index, data)
+	if (dayOfWeek > 0 && dayOfWeek < 6) parkingRate = data.weekdayRate;
+		else if (dayOfWeek == 0) parkingRate = data.satdayRate;
+		else parkingRate = data.sunPHRate;
+	card.innerHTML = `
+	  <div class="card">
+	  	<h2>Location: ${data.ppName}   Carpark ID: ${data.ppCode}</h2>
+		<h3>Parking Capacity: ${data.parkCapacity}</h3>
+		  <p>Parking Rate: ${parkingRate} per ${dayOfWeek > 0 && dayOfWeek < 6 ? 
+			data.weekdayMin : data.dayOfWeek == 0 
+			? data.satdayMin : data.sunPHMin} - The rate is given as: ${data.remarks}</p>
+		</div>
+	  </div>
+	`;
+  
+	//cardsEl.push(card);
+	resultCard.appendChild(card);
+	//updateCurrentText();
+   }
 
 /* display basemap tiles -- see others at https://leaflet-extras.github.io/leaflet-providers/preview/ */
 L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-	attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attribution">CARTO</a>'
+attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attribution">CARTO</a>'
 }).addTo(map);
 
 /* Display a point marker with pop-up text */

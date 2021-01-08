@@ -45,7 +45,6 @@ function onAccuratePositionFound(event) {
 	xmlHttp.onreadystatechange = function () {
 		let uraData;
 		if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
-			document.getElementById('result').textContent = xmlHttp.responseText;
 			uraData = JSON.parse(xmlHttp.responseText);
 			console.log(result);
 			parseData(uraData.Result, result.E, result.N);
@@ -132,7 +131,6 @@ function parseData(obj, N, E) {
 		createCard(card, idx);
 	})
 	console.log(filteredParkingLots);
-	//filterNearestCarParks(nSVYcoord, eSVYcoord, obj);
 }
 
 /* This function determines the current day 
@@ -145,14 +143,18 @@ function generateDayofWeek() {
 	return dayOfWeek;
 	//console.log(dayOfWeek);
 }
-generateDayofWeek();
-/* This function takes in the latitude and longtitude of the current location, and filters 
-	howMany nearst carparks using the URA filter*/
 
 
-function updateGUI(nSVYcoord, eSVYcoord, obj) {
+function updateGUI(data, func = null) {
+	/* Various filters are implemented here! */
+	/*Filter by vehicle category TODO */
 
-}
+	data.forEach((card, index) => {
+		console.log(card, index);
+		createCard(card, index);
+	})
+	
+}	
 
 
 let resultCard = document.getElementById('result');
@@ -162,21 +164,24 @@ function createCard(data, index) {
 	card.classList.add('card');
 	let parkingRate;
 	let dayOfWeek = generateDayofWeek();
-	console.log(index, data)
+	//console.log(index, data)
 	if (dayOfWeek > 0 && dayOfWeek < 6) parkingRate = data.weekdayRate;
-	else if (dayOfWeek == 0) parkingRate = data.satdayRate;
-	else parkingRate = data.sunPHRate;
+		else if (dayOfWeek == 0) parkingRate = data.satdayRate;
+		else parkingRate = data.sunPHRate;
 	card.innerHTML = `
 	  <div class="card">
-	  	<h2>Location: ${data.ppName}   Carpark ID: ${data.ppCode}</h2>
+	  	<h2>Location: ${data.ppName.toLowerCase()}   Carpark ID: ${data.ppCode}</h2>
 		<h3>Parking Capacity: ${data.parkCapacity}</h3>
-		  <p>Parking Rate: ${parkingRate} per ${dayOfWeek > 0 && dayOfWeek < 6 ?
-			data.weekdayMin : data.dayOfWeek == 0
-				? data.satdayMin : data.sunPHMin} - The rate is given as: ${data.remarks}</p>
+		</br>
+		<p>Parking Rate: ${parkingRate} per ${dayOfWeek > 0 && dayOfWeek < 6 ? 
+			data.weekdayMin : data.dayOfWeek == 0 
+			? data.satdayMin : data.sunPHMin}
+			</br>
+			The rate is given as: ${data.remarks}</p>
 		</div>
 	  </div>
 	`;
-
+  
 	//cardsEl.push(card);
 	resultCard.appendChild(card);
 	//updateCurrentText();
@@ -189,4 +194,3 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
 
 /* Display a point marker with pop-up text */
 //L.marker([1.43, 103.83]).addTo(map) // EDIT latitude, longitude to re-position marker
-

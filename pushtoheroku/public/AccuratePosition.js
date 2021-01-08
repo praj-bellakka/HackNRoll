@@ -8,6 +8,8 @@
  * Copyright (C) 2013 Greg Wilson, 2014 Michael Schmidt-Voigt
  */
 
+var temp;
+
 L.Map.include({
 	_defaultAccuratePositionOptions: {
 		maxWait: 10000,
@@ -95,7 +97,7 @@ L.Map.include({
 		var data = {
 			latlng: latlng,
 			bounds: bounds,
-			timestamp: pos.timestamp
+			timestamp: pos.timestamp,
 		};
 
 		for (var i in pos.coords) {
@@ -103,17 +105,6 @@ L.Map.include({
 				data[i] = pos.coords[i];
 			}
 		}
-
-		// Initialization
-		var cv = new SVY21();
-
-		// Computing SVY21 from Lat/Lon
-		var result = cv.computeSVY21(lat, lng);
-		console.log("SVY21", result);
-
-		// Computing Lat/Lon from SVY21
-		var resultLatLon = cv.computeLatLon(result.N, result.E);
-		console.log("Latlon", resultLatLon);
 
 		return data;
 	},

@@ -22,6 +22,7 @@ function onAccuratePositionFound(event) {
 	let message = `Most accurate position found (Accuracy: ${event.accuracy})`;
 	//addStatus(message, 'done');
 	map.setView(event.latlng, 12);
+	console.log(event.latlng);
 	L.marker(event.latlng).addTo(map)
 		.bindPopup("Some pointers can be added here"); // EDIT pop-up text message;
 	console.log(message);
@@ -59,8 +60,8 @@ function onAccuratePositionFound(event) {
 	// CarPark Prices
 	xmlHttp.open("GET", 'https://cors-anywhere.herokuapp.com/https://www.ura.gov.sg/uraDataService/invokeUraDS?service=Car_Park_Details', true);
 
-	xmlHttp.setRequestHeader('AccessKey', '8b274253-49d1-42e5-84a9-0e7691de84c6');
-	xmlHttp.setRequestHeader('Token', 'eYJ72--K-ss7+-1M4spAjUDnAa6eNsuX1s474wHtS9v18B0q4645mKe-988edc8e52RDh3uVe6sSWXh-8TpB7Z95ZK7d9PeZDbdz');
+	xmlHttp.setRequestHeader('AccessKey', 'df63daf5-906c-4fd2-b008-77d84f3416f5');
+	xmlHttp.setRequestHeader('Token', '48xDCsNXGzhAj7e-640KUgh7dP4t0V04B6tu6x73Fe-ZdMd98fM6n0f99fse4ccVtwB02p45vj524D2f8xdDBdr2p8cF8wf0H378');
 	xmlHttp.send();
 }
 
@@ -115,8 +116,6 @@ function parseData(obj, N, E) {
 	//filter the parking lots to the ones nearby
 	let filteredParkingLots = cleanedDataset.filter((e) => {
 
-		console.log("filtering...");
-
 		let coordinateObj;
 		if (e !== null) {
 			coordinateObj = e.geometries[0].coordinates.split(',');
@@ -126,6 +125,7 @@ function parseData(obj, N, E) {
 		return ((coordinateObj[0] <= nSVYcoord + filterStrength &&
 			coordinateObj[0] >= nSVYcoord - filterStrength) && (coordinateObj[1] <= eSVYcoord + filterStrength &&
 				coordinateObj[1] >= eSVYcoord - filterStrength));
+
 	}).forEach((card, idx) => {
 		console.log(card, idx);
 		createCard(card, idx);
@@ -160,6 +160,15 @@ function updateGUI(data, func = null) {
 let resultCard = document.getElementById('result');
 
 function createCard(data, index) {
+
+	/* TODO: Fix marker placement -broken due to inaccurate coordinate conversion
+	//add markers to the map
+	//find the lat and long
+	var cv = new SVY21();
+	let coord = cv.computeLatLon(data.geometries[0].coordinates[0], data.geometries[0].coordinates[1]);
+	console.log(coord);
+	L.marker({lat: coord.lat, lng: coord.lon}).addTo(map).bindPopup(`lat: ${coord.lat}, lng: ${coord.lon}`)
+	*/
 	const card = document.createElement('div');
 	card.classList.add('card');
 	let parkingRate;

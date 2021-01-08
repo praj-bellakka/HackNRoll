@@ -27,6 +27,15 @@ function onAccuratePositionFound(event) {
 	console.log(message);
 
 	// Initialization
+
+	// $.ajax({
+	// 	url: 'https://developers.onemap.sg/commonapi/convert/4326to3414?latitude=' + event.latlng.lat + '&longitude=' + event.latlng.lng,
+	// 	success: function (result) {
+	// 		//Set result to a variable for writing
+	// 		console.log(result);
+	// 	}
+	// });
+
 	var cv = new SVY21();
 
 	// Computing SVY21 from Lat/Lon
@@ -39,7 +48,7 @@ function onAccuratePositionFound(event) {
 			document.getElementById('result').textContent = xmlHttp.responseText;
 			uraData = JSON.parse(xmlHttp.responseText);
 			console.log(result);
-			parseData(uraData.Result, result.N, result.E);
+			parseData(uraData.Result, result.E, result.N);
 		}
 		if (xmlHttp.status == 404) {
 			console.log('Error!');

@@ -1,4 +1,7 @@
 document.getElementById("search").addEventListener("keyup", searchAddressByName);
+document.getElementById("vehCat").addEventListener("change", sortVehCat)
+
+var storefiltered = [];
 
 /* Geolocate function */
 /* Set up the initial map center and zoom level */
@@ -59,10 +62,10 @@ function onAccuratePositionFound(event) {
 	// xmlHttp.open("GET", 'https://www.ura.gov.sg/uraDataService/invokeUraDS?service=Car_Park_Availability', true); 
 
 	// CarPark Prices
-	xmlHttp.open("GET", 'https://cors-anywhere.herokuapp.com/https://www.ura.gov.sg/uraDataService/invokeUraDS?service=Car_Park_Details', true);
+	xmlHttp.open("GET", 'https://proxyhnr.herokuapp.com/https://www.ura.gov.sg/uraDataService/invokeUraDS?service=Car_Park_Details', true);
 
-	xmlHttp.setRequestHeader('AccessKey', '8b274253-49d1-42e5-84a9-0e7691de84c6');
-	xmlHttp.setRequestHeader('Token', 'eYJ72--K-ss7+-1M4spAjUDnAa6eNsuX1s474wHtS9v18B0q4645mKe-988edc8e52RDh3uVe6sSWXh-8TpB7Z95ZK7d9PeZDbdz');
+	xmlHttp.setRequestHeader('AccessKey', 'df63daf5-906c-4fd2-b008-77d84f3416f5');
+	xmlHttp.setRequestHeader('Token', '48xDCsNXGzhAj7e-640KUgh7dP4t0V04B6tu6x73Fe-ZdMd98fM6n0f99fse4ccVtwB02p45vj524D2f8xdDBdr2p8cF8wf0H378');
 	xmlHttp.send();
 }
 
@@ -86,10 +89,10 @@ function manualSearch() {
 	// xmlHttp.open("GET", 'https://www.ura.gov.sg/uraDataService/invokeUraDS?service=Car_Park_Availability', true); 
 
 	// CarPark Prices
-	xmlHttp.open("GET", 'https://cors-anywhere.herokuapp.com/https://www.ura.gov.sg/uraDataService/invokeUraDS?service=Car_Park_Details', true);
+	xmlHttp.open("GET", 'https://proxyhnr.herokuapp.com/https://www.ura.gov.sg/uraDataService/invokeUraDS?service=Car_Park_Details', true);
 
-	xmlHttp.setRequestHeader('AccessKey', '8b274253-49d1-42e5-84a9-0e7691de84c6');
-	xmlHttp.setRequestHeader('Token', 'eYJ72--K-ss7+-1M4spAjUDnAa6eNsuX1s474wHtS9v18B0q4645mKe-988edc8e52RDh3uVe6sSWXh-8TpB7Z95ZK7d9PeZDbdz');
+	xmlHttp.setRequestHeader('AccessKey', 'df63daf5-906c-4fd2-b008-77d84f3416f5');
+	xmlHttp.setRequestHeader('Token', '48xDCsNXGzhAj7e-640KUgh7dP4t0V04B6tu6x73Fe-ZdMd98fM6n0f99fse4ccVtwB02p45vj524D2f8xdDBdr2p8cF8wf0H378');
 	xmlHttp.send();
 }
 
@@ -131,6 +134,17 @@ function searchAddressByName() {
 	}
 }
 
+function sortVehCat() {
+	var selectedCat = document.getElementById("vehCat").value;
+	var newCards = storefiltered.filter(lot => lot.vehCat == selectedCat);
+	document.getElementById("result").innerHTML = "";
+	newCards.forEach((card, idx) => {
+		console.log(card, idx);
+		createCard(card, idx);
+	});
+
+}
+
 /* Set up Map functions */
 
 //determines how strict the filter is in SVY terms
@@ -169,7 +183,6 @@ function parseData(obj, N, E) {
 	let deletedIdx = cleanedDataset.splice(1310, 1);
 	//filter the parking lots to the ones nearby
 	let filteredParkingLots = cleanedDataset.filter((e) => {
-
 		console.log("filtering...");
 
 		let coordinateObj;
@@ -181,11 +194,17 @@ function parseData(obj, N, E) {
 		return ((coordinateObj[0] <= nSVYcoord + filterStrength &&
 			coordinateObj[0] >= nSVYcoord - filterStrength) && (coordinateObj[1] <= eSVYcoord + filterStrength &&
 				coordinateObj[1] >= eSVYcoord - filterStrength));
-	}).forEach((card, idx) => {
+	});
+	
+	filteredParkingLots.forEach((card, idx) => {
 		console.log(card, idx);
 		createCard(card, idx);
+	});
+
+	filteredParkingLots.forEach(lot => {
+		storefiltered.push(lot);
 	})
-	console.log(filteredParkingLots);
+	//console.log(storefiltered);
 }
 
 /* This function determines the current day 

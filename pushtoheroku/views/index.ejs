@@ -2,75 +2,46 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ParkingLots</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+
+	<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+	<script src="svy21.js"></script>
+	<script src="AccuratePosition.js"></script>
+    <link rel="stylesheet" href="style.css" />
+    <title>Parkception</title>
   </head>
-
   <body>
-    <p id="parkinglots"></p>
+     <header>
+	   <h1>Parkception</h1>
+	   <!--This form will feature a search box for the user to search the parking lots-->
+	   <form id="form">
+         <input type="text" id="search" placeholder="Enter Address!">
+		 <div id="map"></div>
+	   </form>
+	   <button id="search-btn" onclick="searchAddressByName()">Search</button>
+	   <button id="geolocate-btn" onclick="geolocater()">Locate</button>
+	 </header>
+	 
+	 <br><br><br><br><br><br><br><br><br>
+	 <div id="manualsearchresults">
+		 
+	 </div>
+	
+	 <div id="map-title">Parking Locations</div>
+     <div id="result" class="container">
+       <p>Results will be displayed here</p>
+     </div>
+
+	 <div id="more" class="container centered"></div>
+	 <footer>
+
+	 </footer>
+	 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="script.js"></script>
+	<script src="manualsearch.js"></script>
+
+	
   </body>
-  <script
-    src="https://cdnjs.cloudflare.com/ajax/libs/geolocator/2.1.5/geolocator.min.js"
-    integrity="sha512-R0ksqyRZYwP5ngAjS9KwXAPh4H0OiesjRspjvDn5NcgLeSqRWX+JYb792Aw0yuRKl9lDx3S9g+g/fr+DFgtpyg=="
-    crossorigin="anonymous"
-  ></script>
-  <script type="text/javascript">
-    var latitude;
-    var longitude;
-
-    geolocator.config({
-      language: "en",
-    });
-
-    window.onload = function () {
-      var options = {
-        enableHighAccuracy: true,
-        timeout: 5000,
-        maximumWait: 10000, // max wait time for desired accuracy
-        maximumAge: 0, // disable cache
-        desiredAccuracy: 30, // meters
-        fallbackToIP: true, // fallback to IP if Geolocation fails or rejected
-        addressLookup: false, // requires Google API key if true
-        timezone: false, // requires Google API key if true
-        // map: "map-canvas",      // interactive map element id (or options object)
-        staticMap: false, // get a static map image URL (boolean or options object)
-      };
-      geolocator.locate(options, function (err, location) {
-        if (err) return console.log(err);
-        console.log(location);
-        latitude = location.coords.latitude;
-        longitude = location.coords.longitude;
-        console.log(latitude);
-      });
-    };
-
-    var xmlHttp = new XMLHttpRequest();
-    xmlHttp.onreadystatechange = function () {
-      if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
-        var result = JSON.parse(xmlHttp.responseText).Result;
-        console.log(result);
-
-        // document.getElementById("parkinglots").textContent =
-        //   xmlHttp.responseText;
-      }
-      if (xmlHttp.status == 404) {
-        console.log("Error!");
-      }
-    };
-
-    xmlHttp.open(
-      "GET",
-      "https://cors-anywhere.herokuapp.com/https://www.ura.gov.sg/uraDataService/invokeUraDS?service=Car_Park_Details",
-      true
-    );
-    xmlHttp.setRequestHeader(
-      "AccessKey",
-      "df63daf5-906c-4fd2-b008-77d84f3416f5"
-    );
-    xmlHttp.setRequestHeader(
-      "Token",
-      "8d83fd8-NFNf9fau7d0uWNv56G6Uf76U0fk9t6bSndXP5Q8HSC+584WVc-b2qf+ENf6BQ@Yf6YR86K6f0dN79c96C5-w8WU8057w"
-    );
-    xmlHttp.send();
-  </script>
 </html>

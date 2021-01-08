@@ -4,25 +4,11 @@
 //require
 const express = require('express');
 const path = require('path');
-const session = require('express-session');
 var bodyparser = require('body-parser');
-const restricted = require('./auth/restricted-middleware');
 
 //create express app
 const server = express();
 
-//session
-const sessionConfig = {
-  name: 'monster',
-  secret: process.env.SECRET,
-  cookie: {
-    maxAge: 1000 * 60 * 60,//this is in milliseconds
-    secure: false, //for production, set to true for https only access
-    httpOnly: true //true means no access from javascript
-  },
-  resave: false,
-  saveUninitialized: true //set to false in production as user has to consent to save cookies 
-};
 
 //routers 
 
@@ -42,7 +28,6 @@ server
 //other 
 server.use(express.json());
 server.use(express.urlencoded())
-server.use(session(sessionConfig));
 
 //routers
 
@@ -50,11 +35,7 @@ server.use(session(sessionConfig));
 
 //Login page
 server.get('/', (req, res) => {
-  if(req.session.user){
-    res.redirect('/homepage');
-  }else {
-    res.render('index');
-  }    
+    res.render('index');  
 } );
 
 //registration page

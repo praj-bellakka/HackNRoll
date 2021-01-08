@@ -66,7 +66,10 @@ function onAccuratePositionFound(event) {
 	xmlHttp.send();
 }
 
-function manualSearch(n, e) {
+function manualSearch() {
+	var e = this.getAttribute("e");
+	var n = this.getAttribute("n");
+
 	let xmlHttp = new XMLHttpRequest();
 	xmlHttp.onreadystatechange = function () {
 		let uraData;
@@ -118,7 +121,9 @@ function searchAddressByName() {
 				for (i = 0; i < resultsarr.length; i += 1) {
 					var btn = document.createElement("button");
 					btn.innerHTML = resultsarr[i].SEARCHVAL;
-					btn.addEventListener("click", manualSearch(resultsarr[i].Y, resultsarr[i].X))
+					btn.setAttribute("n", resultsarr[i].Y);
+					btn.setAttribute("e",  resultsarr[i].X);
+					btn.addEventListener("click", manualSearch);
 					manualsearchresults.appendChild(btn);
 				}
 			}

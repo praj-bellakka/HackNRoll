@@ -7,23 +7,23 @@ let map = L.map('map', {
 	tap: false
 });
 
-function onAccuratePositionError(event) {
+function onAccuratePositionError (event) {
 	//addStatus(event.message, 'error');]
 	console.log(event);
 }
 
-function onAccuratePositionProgress(event) {
+function onAccuratePositionProgress (event) {
 	let message = `Progressing … (Accuracy: ${event.accuracy})`;
 	//addStatus(message, 'progressing');
 	console.log(message);
 }
 
-function onAccuratePositionFound(event) {
+function onAccuratePositionFound (event) {
 	let message = `Most accurate position found (Accuracy: ${event.accuracy})`;
 	//addStatus(message, 'done');
 	map.setView(event.latlng, 12);
 	L.marker(event.latlng).addTo(map)
-		.bindPopup("Some pointers can be added here"); // EDIT pop-up text message;
+	.bindPopup("Some pointers can be added here"); // EDIT pop-up text message;
 	console.log(message);
 
 	// Initialization
@@ -56,16 +56,14 @@ function onAccuratePositionFound(event) {
 	xmlHttp.send();
 }
 
-function geolocater() {
-	map.on('accuratepositionprogress', onAccuratePositionProgress);
-	map.on('accuratepositionfound', onAccuratePositionFound);
-	map.on('accuratepositionerror', onAccuratePositionError);
+map.on('accuratepositionprogress', onAccuratePositionProgress);
+map.on('accuratepositionfound', onAccuratePositionFound);
+map.on('accuratepositionerror', onAccuratePositionError);
 
-	map.findAccuratePosition({
-		maxWait: 10000,
-		desiredAccuracy: 20
-	});
-}
+map.findAccuratePosition({
+	maxWait: 10000,
+	desiredAccuracy: 20
+});
 
 /* Set up Map functions */
 
@@ -81,12 +79,12 @@ function parseData(obj, N, E) {
 
 	obj.sort((a, b) => {
 		//convert the cost per hour in dollars to a flat string using regex operations
-		if (a.weekdayRate.replace(/(^\$|,)/g, '') === b.weekdayRate.replace(/(^\$|,)/g, '')) {
+		if (a.weekdayRate.replace(/(^\$|,)/g,'') === b.weekdayRate.replace(/(^\$|,)/g,'')) {
 			//If two elements have same weekday costs, then the parking lot with more lots will win
 			return b.parkCapacity - a.parkCapacity;
 		} else {
 			//If two elements have different rates, then the cheaper lot will win
-			return a.weekdayRate.replace(/(^\$|,)/g, '') - b.weekdayRate.replace(/(^\$|,)/g, '');
+			return a.weekdayRate.replace(/(^\$|,)/g,'') - b.weekdayRate.replace(/(^\$|,)/g,'');
 		}
 	})
 	//Get the current coordinates in SVY format
@@ -132,9 +130,10 @@ function filterNearestCarParks(nSVYcoord, eSVYcoord, obj) {
 }
 
 
+
 /* display basemap tiles -- see others at https://leaflet-extras.github.io/leaflet-providers/preview/ */
 L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-	attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attribution">CARTO</a>'
+attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attribution">CARTO</a>'
 }).addTo(map);
 
 /* Display a point marker with pop-up text */

@@ -127,7 +127,7 @@ function searchAddressByName() {
 					var btn = document.createElement("button");
 					btn.innerHTML = resultsarr[i].SEARCHVAL;
 					btn.setAttribute("n", resultsarr[i].Y);
-					btn.setAttribute("e",  resultsarr[i].X);
+					btn.setAttribute("e", resultsarr[i].X);
 					btn.addEventListener("click", manualSearch);
 					manualsearchresults.appendChild(btn);
 				}
@@ -138,12 +138,21 @@ function searchAddressByName() {
 
 function sortVehCat() {
 	var selectedCat = document.getElementById("vehCat").value;
-	var newCards = storefiltered.filter(lot => lot.vehCat == selectedCat);
-	document.getElementById("result").innerHTML = "";
-	newCards.forEach((card, idx) => {
-		console.log(card, idx);
-		createCard(card, idx);
-	});
+
+	if (selectedCat == "All") {
+		document.getElementById("result").innerHTML = "";
+		storefiltered.forEach((card, idx) => {
+			console.log(card, idx);
+			createCard(card, idx);
+		});
+	} else {
+		var newCards = storefiltered.filter(lot => lot.vehCat == selectedCat);
+		document.getElementById("result").innerHTML = "";
+		newCards.forEach((card, idx) => {
+			console.log(card, idx);
+			createCard(card, idx);
+		});
+	}
 }
 
 /* Set up Map functions */
@@ -156,19 +165,22 @@ function parseData(obj, N, E) {
 
 	let nSVYcoord = N;
 	let eSVYcoord = E;
-	
-	var CurrCoordinates = 
 
-	obj.sort((a, b) => {
-		//convert the cost per hour in dollars to a flat string using regex operations
-		if (a.weekdayRate.replace(/(^\$|,)/g, '') === b.weekdayRate.replace(/(^\$|,)/g, '')) {
-			//If two elements have same weekday costs, then the parking lot with more lots will win
-			return b.parkCapacity - a.parkCapacity;
-		} else {
-			//If two elements have different rates, then the cheaper lot will win
-			return a.weekdayRate.replace(/(^\$|,)/g, '') - b.weekdayRate.replace(/(^\$|,)/g, '');
-		}
-	})
+	document.getElementById("vehCat").selectedIndex = 0;
+	document.getElementById("result").innerHTML = "";
+
+	var CurrCoordinates =
+
+		obj.sort((a, b) => {
+			//convert the cost per hour in dollars to a flat string using regex operations
+			if (a.weekdayRate.replace(/(^\$|,)/g, '') === b.weekdayRate.replace(/(^\$|,)/g, '')) {
+				//If two elements have same weekday costs, then the parking lot with more lots will win
+				return b.parkCapacity - a.parkCapacity;
+			} else {
+				//If two elements have different rates, then the cheaper lot will win
+				return a.weekdayRate.replace(/(^\$|,)/g, '') - b.weekdayRate.replace(/(^\$|,)/g, '');
+			}
+		})
 	//Get the current coordinates in SVY format
 	// let cv = new SVY21();
 	// //console.log(map);
@@ -198,11 +210,13 @@ function parseData(obj, N, E) {
 			coordinateObj[0] >= nSVYcoord - filterStrength) && (coordinateObj[1] <= eSVYcoord + filterStrength &&
 				coordinateObj[1] >= eSVYcoord - filterStrength));
 	});
-	
+
 	filteredParkingLots.forEach((card, idx) => {
 		console.log(card, idx);
 		createCard(card, idx);
 	});
+
+	storefiltered = [];
 
 	filteredParkingLots.forEach(lot => {
 		storefiltered.push(lot);

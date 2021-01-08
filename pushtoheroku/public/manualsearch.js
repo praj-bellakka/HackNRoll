@@ -1,5 +1,6 @@
 function searchAddressByName() {
     var name = document.getElementById("search").value;
+    document.getElementById("startlocation").innerHTML = name;
 
     if (name) {
         document.getElementById("manualsearchresults").innerHTML = "";

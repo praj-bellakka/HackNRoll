@@ -66,6 +66,7 @@ function onAccuratePositionFound(event) {
 }
 
 function geolocater() {
+	document.getElementById("startlocation").innerHTML = "Your Location";
 	map.on('accuratepositionprogress', onAccuratePositionProgress);
 	map.on('accuratepositionfound', onAccuratePositionFound);
 	map.on('accuratepositionerror', onAccuratePositionError);
@@ -87,6 +88,8 @@ function parseData(obj, N, E) {
 
 	let nSVYcoord = N;
 	let eSVYcoord = E;
+	
+	var CurrCoordinates = 
 
 	obj.sort((a, b) => {
 		//convert the cost per hour in dollars to a flat string using regex operations
@@ -121,16 +124,18 @@ function parseData(obj, N, E) {
 			coordinateObj = e.geometries[0].coordinates.split(',');
 		}
 
-		//console.log(coordinateObj[1], e, idx);
-		return ((coordinateObj[0] <= nSVYcoord + filterStrength &&
-			coordinateObj[0] >= nSVYcoord - filterStrength) && (coordinateObj[1] <= eSVYcoord + filterStrength &&
-				coordinateObj[1] >= eSVYcoord - filterStrength));
-
+		if ((coordinateObj[0] <= nSVYcoord + filterStrength &&
+			coordinateObj[0] >= nSVYcoord - filterStrength) && 
+			(coordinateObj[1] <= eSVYcoord + filterStrength &&
+			coordinateObj[1] >= eSVYcoord - filterStrength))
+			{
+				let distances = Math.sqrt(Math.pow(coordinateObj[0]-nSVYcoord, 2) + pow(coordinateObj[1]-eSVYcoord,2));
+				console.log(distances);
+			}
 	}).forEach((card, idx) => {
 		console.log(card, idx);
 		createCard(card, idx);
-	})
-	console.log(filteredParkingLots);
+	})	
 }
 
 /* This function determines the current day 
@@ -153,9 +158,7 @@ function updateGUI(data, func = null) {
 		console.log(card, index);
 		createCard(card, index);
 	})
-	
 }	
-
 
 let resultCard = document.getElementById('result');
 

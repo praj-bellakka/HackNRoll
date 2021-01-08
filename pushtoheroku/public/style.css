@@ -142,6 +142,11 @@
 			padding: 6px 8px; font-family: Helvetica; font-weight: bold; 
 			font-size: 24px; z-index: 800; }
 
+  #startlocation {position: relative; margin-top: 20%; margin-left: 25px; float: left; 
+			background: white; border: 2px solid rgba(0,0,0,0.2); 
+			padding: 6px 8px; font-family: Helvetica; font-weight: bold; 
+			font-size: 24px; z-index: 800;}
+
 #search-btn{
 	position: relative;
 	height: 50px;
@@ -149,6 +154,7 @@
 }
 
 #geolocate-btn{
+	position: relative;
 	height: 50px;
 	width: 100px;
 }

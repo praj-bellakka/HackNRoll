@@ -1,3 +1,5 @@
+document.getElementById("search").addEventListener("keyup", searchAddressByName);
+
 /* Geolocate function */
 /* Set up the initial map center and zoom level */
 let map = L.map('map', {
@@ -64,6 +66,30 @@ function onAccuratePositionFound(event) {
 	xmlHttp.send();
 }
 
+function manualSearch(n, e) {
+	let xmlHttp = new XMLHttpRequest();
+	xmlHttp.onreadystatechange = function () {
+		let uraData;
+		if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+			uraData = JSON.parse(xmlHttp.responseText);
+			console.log(result);
+			parseData(uraData.Result, e, n);
+		}
+		if (xmlHttp.status == 404) {
+			console.log('Error!');
+		}
+	}
+	// CarPark Available Lots
+	// xmlHttp.open("GET", 'https://www.ura.gov.sg/uraDataService/invokeUraDS?service=Car_Park_Availability', true); 
+
+	// CarPark Prices
+	xmlHttp.open("GET", 'https://cors-anywhere.herokuapp.com/https://www.ura.gov.sg/uraDataService/invokeUraDS?service=Car_Park_Details', true);
+
+	xmlHttp.setRequestHeader('AccessKey', '8b274253-49d1-42e5-84a9-0e7691de84c6');
+	xmlHttp.setRequestHeader('Token', 'eYJ72--K-ss7+-1M4spAjUDnAa6eNsuX1s474wHtS9v18B0q4645mKe-988edc8e52RDh3uVe6sSWXh-8TpB7Z95ZK7d9PeZDbdz');
+	xmlHttp.send();
+}
+
 function geolocater() {
 	map.on('accuratepositionprogress', onAccuratePositionProgress);
 	map.on('accuratepositionfound', onAccuratePositionFound);
@@ -74,6 +100,30 @@ function geolocater() {
 		desiredAccuracy: 20
 	});
 
+}
+
+function searchAddressByName() {
+	var name = document.getElementById("search").value;
+
+	if (name) {
+		document.getElementById("manualsearchresults").innerHTML = "";
+
+		$.ajax({
+			url: 'https://developers.onemap.sg/commonapi/search?searchVal=' + name + '&returnGeom=Y&getAddrDetails=Y&pageNum=1',
+			success: function (result) {
+				console.log(result);
+				var resultsarr = result.results;
+				var manualsearchresults = document.getElementById("manualsearchresults");
+
+				for (i = 0; i < resultsarr.length; i += 1) {
+					var btn = document.createElement("button");
+					btn.innerHTML = resultsarr[i].SEARCHVAL;
+					btn.addEventListener("click", manualSearch(resultsarr[i].Y, resultsarr[i].X))
+					manualsearchresults.appendChild(btn);
+				}
+			}
+		});
+	}
 }
 
 /* Set up Map functions */
@@ -153,8 +203,8 @@ function updateGUI(data, func = null) {
 		console.log(card, index);
 		createCard(card, index);
 	})
-	
-}	
+
+}
 
 
 let resultCard = document.getElementById('result');
@@ -166,22 +216,22 @@ function createCard(data, index) {
 	let dayOfWeek = generateDayofWeek();
 	//console.log(index, data)
 	if (dayOfWeek > 0 && dayOfWeek < 6) parkingRate = data.weekdayRate;
-		else if (dayOfWeek == 0) parkingRate = data.satdayRate;
-		else parkingRate = data.sunPHRate;
+	else if (dayOfWeek == 0) parkingRate = data.satdayRate;
+	else parkingRate = data.sunPHRate;
 	card.innerHTML = `
 	  <div class="card">
 	  	<h2>Location: ${data.ppName.toLowerCase()}   Carpark ID: ${data.ppCode}</h2>
 		<h3>Parking Capacity: ${data.parkCapacity}</h3>
 		</br>
-		<p>Parking Rate: ${parkingRate} per ${dayOfWeek > 0 && dayOfWeek < 6 ? 
-			data.weekdayMin : data.dayOfWeek == 0 
-			? data.satdayMin : data.sunPHMin}
+		<p>Parking Rate: ${parkingRate} per ${dayOfWeek > 0 && dayOfWeek < 6 ?
+			data.weekdayMin : data.dayOfWeek == 0
+				? data.satdayMin : data.sunPHMin}
 			</br>
 			The rate is given as: ${data.remarks}</p>
 		</div>
 	  </div>
 	`;
-  
+
 	//cardsEl.push(card);
 	resultCard.appendChild(card);
 	//updateCurrentText();

@@ -95,7 +95,7 @@ xmlHttp.setRequestHeader('Token', 'eYJ72--K-ss7+-1M4spAjUDnAa6eNsuX1s474wHtS9v18
 xmlHttp.send();
 
 //determines how strict the filter is in SVY terms
-let filterStrength = 1000;
+let filterStrength = 10000;
 
 /* parseData receives the object of parking data from the AJAX request */
 function parseData(obj) {
@@ -117,23 +117,25 @@ function parseData(obj) {
 	//console.log(lat, lng)
 	let nSVYcoord = cv.computeSVY21(lat, lng).N;
 	let eSVYcoord = cv.computeSVY21(lat, lng).E;
-	console.log(cv.computeSVY21(lat, lng), nSVYcoord, eSVYcoord);
-	console.log(obj[0].geometries[0].coordinates.split(',')[0]);
+	console.log(nSVYcoord, eSVYcoord);
+	//console.log(obj[0].geometries[0].coordinates.split(',')[0]);
 
 	//clean the parking lot data to ensure no null entries
 	let cleanedDataset = obj.filter(event => !!event);
-
+	//remove index 1310 as the dataset is blank
+	let deletedIdx = cleanedDataset.splice(1310, 1);
 	//filter the parking lots to the ones nearby
-	let filteredParkingLots = cleanedDataset.filter(e => {
+	let filteredParkingLots = cleanedDataset.filter((e) => {
+		
 		let coordinateObj;
-		if(e !== NULL) {
+		if(e !== null) {
 		  coordinateObj = e.geometries[0].coordinates.split(',');
 		}
 		
-		console.log(coordinateObj[1]);
-		return ((coordinateObj[0] <= nSVYcoord - filterStrength || 
-		coordinateObj[0] <= nSVYcoord + filterStrength) && (coordinateObj[1] <= eSVYcoord - filterStrength || 
-		coordinateObj[1] <= eSVYcoord + filterStrength))
+		//console.log(coordinateObj[1], e, idx);
+		return ((coordinateObj[0] <= nSVYcoord + filterStrength &&
+		coordinateObj[0] >= nSVYcoord - filterStrength) && (coordinateObj[1] <= eSVYcoord + filterStrength &&
+		coordinateObj[1] >= eSVYcoord - filterStrength))
 	})
 	console.log(filteredParkingLots);
 	//filterNearestCarParks(nSVYcoord, eSVYcoord, obj);

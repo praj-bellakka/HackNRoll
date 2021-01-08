@@ -5,7 +5,6 @@
 const express = require('express');
 const path = require('path');
 var bodyparser = require('body-parser');
-const restricted = require('./auth/restricted-middleware');
 
 //create express app
 const server = express();

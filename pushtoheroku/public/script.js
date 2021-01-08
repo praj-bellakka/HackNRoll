@@ -144,7 +144,6 @@ function sortVehCat() {
 		console.log(card, idx);
 		createCard(card, idx);
 	});
-
 }
 
 /* Set up Map functions */

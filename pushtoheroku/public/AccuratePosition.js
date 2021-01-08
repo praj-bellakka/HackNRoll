@@ -28,7 +28,7 @@ L.Map.include({
 		this._accuratePositionOptions = L.extend(this._defaultAccuratePositionOptions, options);
 		this._accuratePositionOptions.enableHighAccuracy = true;
 		this._accuratePositionOptions.maximumAge = 0;
-		
+
 		if (!this._accuratePositionOptions.timeout)
 			this._accuratePositionOptions.timeout = this._accuratePositionOptions.maxWait;
 
@@ -46,7 +46,7 @@ L.Map.include({
 			this._accuratePositionOptions.maxWait);
 	},
 
-	_handleAccuratePositionTimeout: function() {
+	_handleAccuratePositionTimeout: function () {
 		navigator.geolocation.clearWatch(this._accuratePositionWatchId);
 
 		if (typeof this._lastCheckedAccuratePosition !== 'undefined') {
@@ -104,6 +104,17 @@ L.Map.include({
 			}
 		}
 
+		// Initialization
+		var cv = new SVY21();
+
+		// Computing SVY21 from Lat/Lon
+		var result = cv.computeSVY21(lat, lng);
+		console.log("SVY21", result);
+
+		// Computing Lat/Lon from SVY21
+		var resultLatLon = cv.computeLatLon(result.N, result.E);
+		console.log("Latlon", resultLatLon);
+
 		return data;
 	},
 
@@ -121,7 +132,7 @@ L.Map.include({
 		var c = error.code,
 			message = error.message ||
 				(c === 1 ? 'permission denied' :
-				(c === 2 ? 'position unavailable' : 'timeout'));
+					(c === 2 ? 'position unavailable' : 'timeout'));
 
 		this._cleanUpAccuratePositioning();
 

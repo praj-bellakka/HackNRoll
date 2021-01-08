@@ -1,9 +1,14 @@
 let xmlHttp = new XMLHttpRequest();
+//let uraData;
 xmlHttp.onreadystatechange = function () 
 {
+	let uraData;
 	if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
 	{
 		document.getElementById('result').textContent = xmlHttp.responseText;
+		uraData = JSON.parse(xmlHttp.responseText);
+		parseData(uraData.Result);
+		
 	}
 	if (xmlHttp.status == 404)
 	{
@@ -19,7 +24,7 @@ xmlHttp.open("GET", 'https://cors-anywhere.herokuapp.com/https://www.ura.gov.sg/
 xmlHttp.setRequestHeader('AccessKey', '8b274253-49d1-42e5-84a9-0e7691de84c6');
 xmlHttp.setRequestHeader('Token', 'eYJ72--K-ss7+-1M4spAjUDnAa6eNsuX1s474wHtS9v18B0q4645mKe-988edc8e52RDh3uVe6sSWXh-8TpB7Z95ZK7d9PeZDbdz');
 xmlHttp.send();
-
+//var uraData = JSON.parse((xmlHttp.responseText));
 /* Geolocate function */
 /* Set up the initial map center and zoom level */
 let map = L.map('map', {
@@ -30,7 +35,8 @@ let map = L.map('map', {
 });
 
 function onAccuratePositionError (event) {
-	addStatus(event.message, 'error');
+	//addStatus(event.message, 'error');]
+	console.log(event);
 }
 
 function onAccuratePositionProgress (event) {
@@ -47,14 +53,6 @@ function onAccuratePositionFound (event) {
 	.bindPopup("Some pointers can be added here"); // EDIT pop-up text message;
 	console.log(message);
 }
-/*
-function addStatus (message, className) {
-	var ul = document.getElementById('status'),
-		li = document.createElement('li');
-	li.appendChild(document.createTextNode(message));
-	ul.className = className;
-	ul.appendChild(li);
-} */
 
 map.on('accuratepositionprogress', onAccuratePositionProgress);
 map.on('accuratepositionfound', onAccuratePositionFound);
@@ -65,7 +63,30 @@ map.findAccuratePosition({
 	desiredAccuracy: 20
 });
 
+/* parseData receives the object of parking data from the AJAX request */
+function parseData(obj) {
+	console.log(obj[0]);
 
+	obj.sort((a, b) => {
+		//convert the cost per hour in dollars to a flat string using regex operations
+		if (a.weekdayRate.replace(/(^\$|,)/g,'') === b.weekdayRate.replace(/(^\$|,)/g,'')) {
+			//If two elements have same weekday costs, then the parking lot with more lots will win
+			return b.parkCapacity - a.parkCapacity;
+		} else {
+			//If two elements have different rates, then the cheaper lot will win
+			return a.weekdayRate.replace(/(^\$|,)/g,'') - b.weekdayRate.replace(/(^\$|,)/g,'');
+		}
+	})
+	console.log(obj[0]);
+}
+
+
+/* This function takes in the latitude and longtitude of the current location, and filters 
+	howMany nearst carparks using the URA filter*/
+
+function filterNearestCarParks (latitude, longitude, howMany) {
+	
+}
 
 
 /* display basemap tiles -- see others at https://leaflet-extras.github.io/leaflet-providers/preview/ */

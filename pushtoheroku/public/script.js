@@ -22,6 +22,7 @@ function onAccuratePositionFound(event) {
 	let message = `Most accurate position found (Accuracy: ${event.accuracy})`;
 	//addStatus(message, 'done');
 	map.setView(event.latlng, 12);
+	console.log(event.latlng);
 	L.marker(event.latlng).addTo(map)
 		.bindPopup("Some pointers can be added here"); // EDIT pop-up text message;
 	console.log(message);
@@ -118,8 +119,6 @@ function parseData(obj, N, E) {
 	//filter the parking lots to the ones nearby
 	let filteredParkingLots = cleanedDataset.filter((e) => {
 
-		console.log("filtering...");
-
 		let coordinateObj;
 		if (e !== null) {
 			coordinateObj = e.geometries[0].coordinates.split(',');
@@ -164,6 +163,15 @@ function updateGUI(data, func = null) {
 let resultCard = document.getElementById('result');
 
 function createCard(data, index) {
+
+	/* TODO: Fix marker placement -broken due to inaccurate coordinate conversion
+	//add markers to the map
+	//find the lat and long
+	var cv = new SVY21();
+	let coord = cv.computeLatLon(data.geometries[0].coordinates[0], data.geometries[0].coordinates[1]);
+	console.log(coord);
+	L.marker({lat: coord.lat, lng: coord.lon}).addTo(map).bindPopup(`lat: ${coord.lat}, lng: ${coord.lon}`)
+	*/
 	const card = document.createElement('div');
 	card.classList.add('card');
 	let parkingRate;

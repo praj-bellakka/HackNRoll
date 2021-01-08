@@ -1,3 +1,8 @@
+document.getElementById("search").addEventListener("keyup", searchAddressByName);
+document.getElementById("vehCat").addEventListener("change", sortVehCat)
+
+var storefiltered = [];
+
 /* Geolocate function */
 /* Set up the initial map center and zoom level */
 let map = L.map('map', {
@@ -58,7 +63,34 @@ function onAccuratePositionFound(event) {
 	// xmlHttp.open("GET", 'https://www.ura.gov.sg/uraDataService/invokeUraDS?service=Car_Park_Availability', true); 
 
 	// CarPark Prices
-	xmlHttp.open("GET", 'https://cors-anywhere.herokuapp.com/https://www.ura.gov.sg/uraDataService/invokeUraDS?service=Car_Park_Details', true);
+	xmlHttp.open("GET", 'https://proxyhnr.herokuapp.com/https://www.ura.gov.sg/uraDataService/invokeUraDS?service=Car_Park_Details', true);
+
+	xmlHttp.setRequestHeader('AccessKey', 'df63daf5-906c-4fd2-b008-77d84f3416f5');
+	xmlHttp.setRequestHeader('Token', '48xDCsNXGzhAj7e-640KUgh7dP4t0V04B6tu6x73Fe-ZdMd98fM6n0f99fse4ccVtwB02p45vj524D2f8xdDBdr2p8cF8wf0H378');
+	xmlHttp.send();
+}
+
+function manualSearch() {
+	var e = this.getAttribute("e");
+	var n = this.getAttribute("n");
+
+	let xmlHttp = new XMLHttpRequest();
+	xmlHttp.onreadystatechange = function () {
+		let uraData;
+		if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+			uraData = JSON.parse(xmlHttp.responseText);
+			console.log(result);
+			parseData(uraData.Result, e, n);
+		}
+		if (xmlHttp.status == 404) {
+			console.log('Error!');
+		}
+	}
+	// CarPark Available Lots
+	// xmlHttp.open("GET", 'https://www.ura.gov.sg/uraDataService/invokeUraDS?service=Car_Park_Availability', true); 
+
+	// CarPark Prices
+	xmlHttp.open("GET", 'https://proxyhnr.herokuapp.com/https://www.ura.gov.sg/uraDataService/invokeUraDS?service=Car_Park_Details', true);
 
 	xmlHttp.setRequestHeader('AccessKey', 'df63daf5-906c-4fd2-b008-77d84f3416f5');
 	xmlHttp.setRequestHeader('Token', '48xDCsNXGzhAj7e-640KUgh7dP4t0V04B6tu6x73Fe-ZdMd98fM6n0f99fse4ccVtwB02p45vj524D2f8xdDBdr2p8cF8wf0H378');
@@ -74,6 +106,43 @@ function geolocater() {
 	map.findAccuratePosition({
 		maxWait: 10000,
 		desiredAccuracy: 20
+	});
+
+}
+
+function searchAddressByName() {
+	var name = document.getElementById("search").value;
+
+	if (name) {
+		document.getElementById("manualsearchresults").innerHTML = "";
+
+		$.ajax({
+			url: 'https://developers.onemap.sg/commonapi/search?searchVal=' + name + '&returnGeom=Y&getAddrDetails=Y&pageNum=1',
+			success: function (result) {
+				console.log(result);
+				var resultsarr = result.results;
+				var manualsearchresults = document.getElementById("manualsearchresults");
+
+				for (i = 0; i < resultsarr.length; i += 1) {
+					var btn = document.createElement("button");
+					btn.innerHTML = resultsarr[i].SEARCHVAL;
+					btn.setAttribute("n", resultsarr[i].Y);
+					btn.setAttribute("e",  resultsarr[i].X);
+					btn.addEventListener("click", manualSearch);
+					manualsearchresults.appendChild(btn);
+				}
+			}
+		});
+	}
+}
+
+function sortVehCat() {
+	var selectedCat = document.getElementById("vehCat").value;
+	var newCards = storefiltered.filter(lot => lot.vehCat == selectedCat);
+	document.getElementById("result").innerHTML = "";
+	newCards.forEach((card, idx) => {
+		console.log(card, idx);
+		createCard(card, idx);
 	});
 
 }
@@ -118,24 +187,28 @@ function parseData(obj, N, E) {
 	let deletedIdx = cleanedDataset.splice(1310, 1);
 	//filter the parking lots to the ones nearby
 	let filteredParkingLots = cleanedDataset.filter((e) => {
+		console.log("filtering...");
 
 		let coordinateObj;
 		if (e !== null) {
 			coordinateObj = e.geometries[0].coordinates.split(',');
 		}
 
-		if ((coordinateObj[0] <= nSVYcoord + filterStrength &&
-			coordinateObj[0] >= nSVYcoord - filterStrength) && 
-			(coordinateObj[1] <= eSVYcoord + filterStrength &&
-			coordinateObj[1] >= eSVYcoord - filterStrength))
-			{
-				let distances = Math.sqrt(Math.pow(coordinateObj[0]-nSVYcoord, 2) + pow(coordinateObj[1]-eSVYcoord,2));
-				console.log(distances);
-			}
-	}).forEach((card, idx) => {
+		//console.log(coordinateObj[1], e, idx);
+		return ((coordinateObj[0] <= nSVYcoord + filterStrength &&
+			coordinateObj[0] >= nSVYcoord - filterStrength) && (coordinateObj[1] <= eSVYcoord + filterStrength &&
+				coordinateObj[1] >= eSVYcoord - filterStrength));
+	});
+	
+	filteredParkingLots.forEach((card, idx) => {
 		console.log(card, idx);
 		createCard(card, idx);
-	})	
+	});
+
+	filteredParkingLots.forEach(lot => {
+		storefiltered.push(lot);
+	})
+	//console.log(storefiltered);
 }
 
 /* This function determines the current day 
@@ -158,7 +231,8 @@ function updateGUI(data, func = null) {
 		console.log(card, index);
 		createCard(card, index);
 	})
-}	
+
+}
 
 let resultCard = document.getElementById('result');
 
@@ -178,22 +252,22 @@ function createCard(data, index) {
 	let dayOfWeek = generateDayofWeek();
 	//console.log(index, data)
 	if (dayOfWeek > 0 && dayOfWeek < 6) parkingRate = data.weekdayRate;
-		else if (dayOfWeek == 0) parkingRate = data.satdayRate;
-		else parkingRate = data.sunPHRate;
+	else if (dayOfWeek == 0) parkingRate = data.satdayRate;
+	else parkingRate = data.sunPHRate;
 	card.innerHTML = `
 	  <div class="card">
 	  	<h2>Location: ${data.ppName.toLowerCase()}   Carpark ID: ${data.ppCode}</h2>
 		<h3>Parking Capacity: ${data.parkCapacity}</h3>
 		</br>
-		<p>Parking Rate: ${parkingRate} per ${dayOfWeek > 0 && dayOfWeek < 6 ? 
-			data.weekdayMin : data.dayOfWeek == 0 
-			? data.satdayMin : data.sunPHMin}
+		<p>Parking Rate: ${parkingRate} per ${dayOfWeek > 0 && dayOfWeek < 6 ?
+			data.weekdayMin : data.dayOfWeek == 0
+				? data.satdayMin : data.sunPHMin}
 			</br>
 			The rate is given as: ${data.remarks}</p>
 		</div>
 	  </div>
 	`;
-  
+
 	//cardsEl.push(card);
 	resultCard.appendChild(card);
 	//updateCurrentText();
